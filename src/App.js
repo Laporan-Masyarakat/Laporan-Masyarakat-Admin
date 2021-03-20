@@ -1058,7 +1058,7 @@ function App() {
                         <div className="col-xl-8 col-xxl-12">
                           <div className="text-center text-xl-left text-xxl-center px-4 mb-4 mb-xl-0 mb-xxl-4">
                             <h1 className="text-primary">
-                              Welcome to SB Admin Pro!
+                              Welcome to Admin Pelapor!
                             </h1>
                             <p className="text-gray-700 mb-0">
                               Browse our fully designed UI toolkit! Browse our
