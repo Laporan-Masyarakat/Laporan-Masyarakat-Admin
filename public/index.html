@@ -48,6 +48,8 @@
     src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.28.0/feather.min.js"
     crossorigin="anonymous"
   ></script>
+  <script src="http://maps.google.com/maps/api/js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gmaps.js/0.4.24/gmaps.js"></script>
   <body class="nav-fixed">
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
@@ -114,11 +116,15 @@
           }
         })
 
-        // Toggle the side navigation
-        $('#sidebarToggle').on('click', function (e) {
-          e.preventDefault()
+        if (localStorage.getItem('username') === null) {
           $('body').toggleClass('sidenav-toggled')
-        })
+        } else {
+          // Toggle the side navigation
+          $('#sidebarToggle').on('click', function (e) {
+            e.preventDefault()
+            $('body').toggleClass('sidenav-toggled')
+          })
+        }
 
         // Activate Feather icons
         feather.replace()
