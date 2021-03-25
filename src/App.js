@@ -1,12 +1,51 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
-import LoginScreen from './Auth/LoginScreen'
 import DashboardScreen from './Screens/DashboardScreen'
-import LocationScreen from './Screens/LocationScreen'
+import HomeScreen from './Screens/HomeScreen'
+import LoginScreen from './Auth/LoginScreen'
+import Swal from 'sweetalert2/src/sweetalert2.js'
+import withReactContent from 'sweetalert2-react-content'
 
 function App() {
+  const API_URL = `http://localhost:8000`
+  const MySwal = withReactContent(Swal)
+  const [state, setState] = useState({
+    loggedIn: false,
+    user: {},
+  })
   const username = localStorage.getItem('username')
-  console.log(username)
+
+  // Middleware
+  if (localStorage.getItem('username') === '') {
+    window.location.href = '/'
+  }
+
+  // function logout
+  // const logoutFunc = async () => {
+  //   MySwal.fire({
+  //     title: 'currently logged out of account...',
+  //     didOpen: () => {
+  //       MySwal.showLoading()
+  //     },
+  //   })
+  //   try {
+  //     const getLogout = await fetch(`${URL_API}/logout`, {
+  //       headers: {
+  //         Authorization: `Bearer ${localStorage.getItem('token')}`,
+  //       },
+  //     })
+  //     const logout = await getLogout.json()
+  //     console.log(logout)
+  //     if (logout.success) {
+  //       window.localStorage.clear()
+  //       props.history.push('/')
+  //       MySwal.close()
+  //     }
+  //   } catch (error) {
+  //     console.log(error)
+  //   }
+  // }
+
   return (
     <>
       <Router>
@@ -21,7 +60,7 @@ function App() {
               {/* * * Tip * * You can use text or an image for your navbar brand.*/}
               {/* * * * * * * When using an image, we recommend the SVG format.*/}
               {/* * * * * * * Dimensions: Maximum height: 32px, maximum width: 240px*/}
-              <a className="navbar-brand" href="index.html">
+              <a className="navbar-brand" href="/">
                 Pelapor!
               </a>
               {/* Navbar Items*/}
@@ -41,29 +80,19 @@ function App() {
               <div id="layoutSidenav_content">
                 {/* Content */}
                 <main>
-                  {/* Dashboard Screen */}
+                  {/* Home Screen */}
                   <Route exact path="/">
-                    <DashboardScreen />
+                    <HomeScreen />
                   </Route>
-                  {/* Dashboard Screen */}
-                  <Route path="/login">
-                    <LoginScreen />
-                  </Route>
+                  {/* Login Screen */}
+                  <Route
+                    exact
+                    path="/login"
+                    render={(props) => (
+                      <LoginScreen {...props} data={state} setData={setState} />
+                    )}
+                  />
                 </main>
-
-                <footer className="footer mt-auto footer-light">
-                  <div className="container-fluid">
-                    <div className="row">
-                      <div className="col-md-6 small">
-                        Copyright © Pelapor 2021
-                      </div>
-                      <div className="col-md-6 text-md-right small">
-                        <a href="#!">Privacy Policy</a>·
-                        <a href="#!">Terms &amp; Conditions</a>
-                      </div>
-                    </div>
-                  </div>
-                </footer>
               </div>
             </div>
           </>
@@ -78,7 +107,7 @@ function App() {
               {/* * * Tip * * You can use text or an image for your navbar brand.*/}
               {/* * * * * * * When using an image, we recommend the SVG format.*/}
               {/* * * * * * * Dimensions: Maximum height: 32px, maximum width: 240px*/}
-              <a className="navbar-brand" href="index.html">
+              <a className="navbar-brand" href="/">
                 Pelapor!
               </a>
               {/* Sidenav Toggle Button*/}
@@ -573,7 +602,7 @@ function App() {
                 {/* Content */}
                 <main>
                   {/* Dashboard Screen */}
-                  <Route exact path="/">
+                  <Route exact path="/admin/dashboard">
                     <DashboardScreen />
                   </Route>
                 </main>

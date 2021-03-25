@@ -1,8 +1,72 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import { ReactComponent as BackgroundLogin } from '../image/loginback.svg'
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
 
-function LoginScreen() {
+function LoginScreen(props) {
+  const API_URL = `http://localhost:8000/`
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const MySwal = withReactContent(Swal)
+
+  // function login
+  const loginForm = async (e) => {
+    e.preventDefault()
+    let formData = new FormData(e.target)
+
+    try {
+      const fetchLogin = await fetch(`${API_URL}api/login`, {
+        method: 'POST',
+        body: formData,
+      })
+      const datalogin = await fetchLogin.json()
+      console.log(datalogin)
+      if (datalogin.success) {
+        localStorage.setItem('username', datalogin.result.username)
+        localStorage.setItem('token', datalogin.result.token)
+        localStorage.setItem('iduser', datalogin.result.iduser)
+        props.setData({
+          loggedIn: true,
+          user: datalogin.result.username,
+        })
+        MySwal.fire({
+          title: 'Loading...',
+          timer: 1000,
+          didOpen: () => {
+            MySwal.showLoading()
+          },
+        })
+        props.history.push('/admin/dashboard')
+      } else {
+        MySwal.fire({
+          icon: 'error',
+          title: 'There is an error!',
+          text: 'Email or password is not correct!',
+        })
+      }
+    } catch (error) {
+      console.log(error)
+      alert(error)
+    }
+  }
+
+  useEffect(() => {
+    if (localStorage.getItem('token')) {
+      props.history.push('/admin/dashboard')
+    }
+  }, [props.history])
+
   return (
     <>
+      <BackgroundLogin
+        style={{
+          width: '50%',
+          position: 'absolute',
+          height: '50%',
+          left: '-3%',
+          bottom: '3',
+        }}
+      />
       <div className="container">
         <div className="row justify-content-center">
           <div className="col-lg-5">
@@ -23,7 +87,7 @@ function LoginScreen() {
               </div>
               <div className="card-body">
                 {/* Login form*/}
-                <form>
+                <form onSubmit={loginForm}>
                   {/* Form Group (email address)*/}
                   <div className="form-group">
                     <label className="small mb-1" htmlFor="inputEmailAddress">
@@ -34,6 +98,10 @@ function LoginScreen() {
                       id="inputEmailAddress"
                       type="email"
                       placeholder="Enter email address"
+                      name="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
                     />
                   </div>
                   {/* Form Group (password)*/}
@@ -46,29 +114,17 @@ function LoginScreen() {
                       id="inputPassword"
                       type="password"
                       placeholder="Enter password"
+                      name="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
                     />
-                  </div>
-                  {/* Form Group (remember password checkbox)*/}
-                  <div className="form-group">
-                    <div className="custom-control custom-checkbox">
-                      <input
-                        className="custom-control-input"
-                        id="rememberPasswordCheck"
-                        type="checkbox"
-                      />
-                      <label
-                        className="custom-control-label"
-                        htmlFor="rememberPasswordCheck"
-                      >
-                        Remember password
-                      </label>
-                    </div>
                   </div>
                   {/* Form Group (login box)*/}
                   <div className="form-group d-flex align-items-center justify-content-between mt-4 mb-0">
-                    <a className="btn btn-primary" href="index.html">
+                    <button className="btn btn-primary" type="submit">
                       Login
-                    </a>
+                    </button>
                   </div>
                 </form>
               </div>
