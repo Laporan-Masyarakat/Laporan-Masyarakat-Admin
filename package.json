@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^12.6.0",
     "feather-icons": "^4.28.0",
     "google-maps-react": "^2.0.6",
+    "mdbreact": "^5.0.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-feather": "^2.0.9",
