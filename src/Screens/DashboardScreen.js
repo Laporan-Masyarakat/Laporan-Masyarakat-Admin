@@ -12,7 +12,7 @@ function DashboardScreen() {
                   <div className="page-header-icon">
                     <i data-feather="activity" />
                   </div>
-                  Dashboard Admin
+                  Dashboard Pelapor!
                 </h1>
               </div>
             </div>
