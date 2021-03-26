@@ -10,7 +10,7 @@ function HomeScreen(props) {
   const MySwal = withReactContent(Swal)
 
   // Middleware
-  if (localStorage.getItem('token') === '') {
+  if (!localStorage.getItem('token')) {
     window.location.href = '/'
   }
 
@@ -31,7 +31,7 @@ function HomeScreen(props) {
       const logout = await getLogout.json()
       console.log(logout)
       if (logout.success) {
-        window.localStorage.clear()
+        localStorage.clear()
         props.history.push('/')
         MySwal.close()
       }
@@ -310,7 +310,7 @@ function HomeScreen(props) {
               />
             </a>
             <div
-              className="dropdown-menu dropdown-menu-right border-0 shadow animated--fade-in-up"
+              className="dropdown-menu dropdown-menu-left border-0 shadow animated--fade-in-up"
               aria-labelledby="navbarDropdownUserImage"
             >
               <h6 className="dropdown-header d-flex align-items-center">

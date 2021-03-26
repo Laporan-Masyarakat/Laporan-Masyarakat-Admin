@@ -6,8 +6,35 @@ import withReactContent from 'sweetalert2-react-content'
 function LaporanScreen() {
   const API_URL = `http://localhost:8000/`
   const Swal = withReactContent(MySwal)
+  const [statusdata, setStatusData] = useState('')
   const [tableLaporan, setTableLaporan] = useState('')
+  const [judulLaporan, setJudulLaporan] = useState('')
+  const [isiLaporan, setIsiLaporan] = useState('')
+  const [tgllaporan, setTglLaporan] = useState('')
+  const [lokasiKejadian, setLokasiKejadian] = useState('')
+  const [status, setStatus] = useState('')
   const [loading, setLoading] = useState(false)
+
+  // get data to verification
+  const getIdLaporan = async (e) => {
+    try {
+      const data = await fetch(
+        `${API_URL}api/getIdLaporan/${e.currentTarget.id}`,
+        {
+          method: 'GET',
+        },
+      )
+      const result = await data.json()
+      setJudulLaporan(result.data[0].judul_laporan)
+      setIsiLaporan(result.data[0].isi_laporan)
+      setTglLaporan(result.data[0].tgl_pengaduan)
+      setLokasiKejadian(result.data[0].lokasi_kejadian)
+      setStatus(result.data[0].status[0].id)
+    } catch (error) {
+      console.log(error)
+      alert(error)
+    }
+  }
 
   // Setting the data table
   const datatableLaporan = (laporan) => {
@@ -16,9 +43,10 @@ function LaporanScreen() {
     for (var index = 0; index < laporan.length; index++) {
       let rowItem = {}
       rowItem['no'] = index + 1
-      rowItem['nik'] = laporan[index].nik
-      rowItem['tgl_pengaduan'] = laporan[index].tgl_pengaduan
+      rowItem['judul_laporan'] = laporan[index].judul_laporan
       rowItem['isi_laporan'] = laporan[index].isi_laporan
+      rowItem['tgl_pengaduan'] = laporan[index].tgl_pengaduan
+      rowItem['lokasi_kejadian'] = laporan[index].lokasi_kejadian
       rowItem['foto_laporan'] = (
         <img
           style={{ width: '200px', height: '150px', borderRadius: '5px' }}
@@ -26,25 +54,82 @@ function LaporanScreen() {
           alt="tidak ada gambar"
         />
       )
-      rowItem['status'] = (
-        <div class="badge badge-success badge-pill">
-          {laporan[index].status}
-        </div>
-      )
+      let status = laporan[index].status[0].status
+      switch (status) {
+        case 'Belum Diproses':
+          rowItem['status'] = (
+            <div class="badge badge-danger badge-pill">
+              {laporan[index].status[0].status}
+            </div>
+          )
+          break
+
+        case 'Diproses':
+          rowItem['status'] = (
+            <div class="badge badge-warning badge-pill">
+              {laporan[index].status[0].status}
+            </div>
+          )
+          break
+
+        case 'Selesai':
+          rowItem['status'] = (
+            <div class="badge badge-success badge-pill">
+              {laporan[index].status[0].status}
+            </div>
+          )
+          break
+
+        default:
+          rowItem['status'] = (
+            <div class="badge badge-danger badge-pill">Tidak Ada Status</div>
+          )
+          break
+      }
       rowItem['action'] = (
         <>
-          <button
-            class="btn btn-datatable btn-icon btn-transparent-dark"
-            id={laporan[index].id}
-          >
-            <i className="fas fa-ellipsis-v" />
-          </button>
-          <button
-            class="btn btn-datatable btn-icon btn-transparent-dark mr-2"
-            id={laporan[index].id}
-          >
-            <i className="far fa-trash-alt" />
-          </button>
+          <div className="dropdown no-caret">
+            <button
+              className="btn btn-transparent-dark btn-icon dropdown-toggle"
+              id="dropdownMenuButton"
+              type="button"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              <i className="fas fa-ellipsis-v" />
+            </button>
+            <div
+              className="dropdown-menu dropdown-menu-right animated--fade-in-up"
+              aria-labelledby="dropdownMenuButton"
+            >
+              <a
+                className="dropdown-item"
+                href="#!"
+                data-toggle="modal"
+                data-target="#verifModal"
+                id={laporan[index].id}
+                onClick={(event) => getIdLaporan(event)}
+              >
+                <div className="dropdown-item-icon">
+                  <i className="fas fa-pen-nib text-gray-500"></i>
+                </div>
+                Verifikasi Laporan
+              </a>
+              <a className="dropdown-item" href="#!">
+                <div className="dropdown-item-icon">
+                  <i className="far fa-edit text-gray-500"></i>
+                </div>
+                Berikan Tanggapan
+              </a>
+              <a className="dropdown-item" href="#!">
+                <div className="dropdown-item-icon">
+                  <i className="fas fa-trash-alt text-gray-500"></i>
+                </div>
+                Hapus Laporan
+              </a>
+            </div>
+          </div>
         </>
       )
       rowsData.push(rowItem)
@@ -66,11 +151,31 @@ function LaporanScreen() {
     }
   }
 
+  // fetch status data
+  const fetchStatus = async () => {
+    try {
+      const data = await fetch(`${API_URL}api/getstatus`, {
+        method: 'GET',
+      })
+      const result = await data.json()
+      setStatusData(result.result)
+    } catch (error) {
+      console.log(error)
+      alert(error)
+    }
+  }
+
   //   running the state
   useEffect(() => {
-    fetchLaporan().then(() => {
-      setLoading(true)
-    })
+    fetchLaporan()
+      .then(() => {
+        setLoading(true)
+      })
+      .then(() => {
+        fetchStatus().then(() => {
+          setLoading(true)
+        })
+      })
   }, [])
 
   // data laporan
@@ -83,8 +188,13 @@ function LaporanScreen() {
           sort: 'asc',
         },
         {
-          label: 'NIK',
-          field: 'nik',
+          label: 'Judul Laporan',
+          field: 'judul_laporan',
+          sort: 'asc',
+        },
+        {
+          label: 'Isi Laporan',
+          field: 'isi_laporan',
           sort: 'asc',
         },
         {
@@ -93,8 +203,8 @@ function LaporanScreen() {
           sort: 'asc',
         },
         {
-          label: 'Isi Laporan',
-          field: 'isi_laporan',
+          label: 'Lokasi Kejadian',
+          field: 'lokasi_kejadian',
           sort: 'asc',
         },
         {
@@ -124,7 +234,7 @@ function LaporanScreen() {
           <div className="page-header-content pt-4">
             <ol className="breadcrumb mb-0 mt-4">
               <li className="breadcrumb-item">
-                <a href="index.html">Dashboard</a>
+                <a href="/">Dashboard</a>
               </li>
               <li className="breadcrumb-item active">Laporan Masuk</li>
             </ol>
@@ -137,12 +247,109 @@ function LaporanScreen() {
           <div className="card-header">Table Laporan Masuk</div>
           <div className="card-body">
             <MDBDataTable
-              sortable={false}
+              sortable={true}
               noBottomColumns={true}
               striped
               data={dataLaporan(tableLaporan)}
               responsive={true}
             />
+          </div>
+        </div>
+      </div>
+
+      {/* verifikasi laporan */}
+      <div className="modal fade" tabIndex={-1} id="verifModal">
+        <div className="modal-dialog modal-lg">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Verifikasi Laporan</h5>
+              <button
+                type="button"
+                className="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+            <div className="modal-body">
+              <form>
+                <div className="form-group">
+                  <label htmlFor="exampleFormControlTextarea1">
+                    Judul Laporan
+                  </label>
+                  <input
+                    className="form-control"
+                    placeholder="Masukkan Judul Laporan"
+                    value={judulLaporan}
+                    disabled
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="exampleFormControlTextarea1">
+                    Isi Laporan
+                  </label>
+                  <input
+                    className="form-control"
+                    placeholder="Masukkan Judul Laporan"
+                    value={isiLaporan}
+                    disabled
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="exampleFormControlTextarea1">
+                    Tanggal Kejadian
+                  </label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    placeholder="Masukkan Judul Laporan"
+                    value={tgllaporan}
+                    disabled
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="exampleFormControlTextarea1">
+                    Lokasi Kejadian
+                  </label>
+                  <input
+                    className="form-control"
+                    placeholder="Masukkan Judul Laporan"
+                    value={lokasiKejadian}
+                    disabled
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="exampleFormControlSelect1">Status</label>
+                  <select
+                    class="form-control"
+                    id="exampleFormControlSelect1"
+                    value={status}
+                  >
+                    <option selected>Choose...</option>
+                    {statusdata.length > 0 ? (
+                      statusdata.map((item) => (
+                        <option value={item.id}>{item.status}</option>
+                      ))
+                    ) : (
+                      <option>No Option In Here!</option>
+                    )}
+                  </select>
+                </div>
+              </form>
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                data-dismiss="modal"
+              >
+                Close
+              </button>
+              <button type="button" className="btn btn-primary">
+                Save changes
+              </button>
+            </div>
           </div>
         </div>
       </div>
