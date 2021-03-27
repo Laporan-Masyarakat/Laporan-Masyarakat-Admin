@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { MDBDataTable } from 'mdbreact'
 import MySwal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
+import $ from 'jquery'
 
 function LaporanScreen() {
   const API_URL = `http://localhost:8000/`
@@ -18,6 +19,7 @@ function LaporanScreen() {
   const [datainstansi, setDataInstansi] = useState('')
   const [datakategori, setDataKategori] = useState('')
   const [loading, setLoading] = useState(false)
+  const [idlaporan, setIdLaporan] = useState(1)
 
   // get data to verification
   const getIdLaporan = async (e) => {
@@ -36,6 +38,7 @@ function LaporanScreen() {
       setStatus(result.data[0].status[0].id)
       setInstansi(result.data[0].instansi_tujuan)
       setKategori(result.data[0].kategori_laporan)
+      setIdLaporan(result.data[0].id)
     } catch (error) {
       console.log(error)
       alert(error)
@@ -54,7 +57,8 @@ function LaporanScreen() {
       rowItem['tgl_pengaduan'] = laporan[index].tgl_pengaduan
       rowItem['lokasi_kejadian'] = laporan[index].lokasi_kejadian
       rowItem['instansi_tujuan'] = laporan[index].instansi_tujuan
-      rowItem['kategori_laporan'] = laporan[index].kategori_laporan
+      rowItem['kategori_laporan'] =
+        laporan[index].kategori_laporan[0].kategori_laporan
       rowItem['foto_laporan'] = (
         <img
           style={{ width: '200px', height: '150px', borderRadius: '5px' }}
@@ -201,6 +205,41 @@ function LaporanScreen() {
     }
   }
 
+  // update status
+  const updateStatus = async (e) => {
+    e.preventDefault()
+    const formData = new FormData(e.target)
+    try {
+      const data = await fetch(`${API_URL}api/editstatus/${idlaporan}`, {
+        method: 'POST',
+        body: formData,
+      })
+      const result = await data.json()
+      if (result.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil Memvalidasi Data Laporan',
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+          },
+        }).then(() => {
+          fetchLaporan()
+          document.getElementById('formEdit').reset()
+          window.$('#verifModal').modal('hide')
+        })
+      }
+    } catch (error) {
+      console.log(error)
+      alert(error)
+    }
+  }
+
   // running the state
   useEffect(() => {
     fetchLaporan()
@@ -322,7 +361,7 @@ function LaporanScreen() {
                 <span aria-hidden="true">×</span>
               </button>
             </div>
-            <form>
+            <form onSubmit={(e) => updateStatus(e)} id="formEdit">
               <div className="modal-body">
                 <div className="form-group">
                   <label>
@@ -373,7 +412,12 @@ function LaporanScreen() {
                   <label>
                     <b>Status</b>
                   </label>
-                  <select class="form-control" value={status}>
+                  <select
+                    class="form-control"
+                    name="status"
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                  >
                     <option selected>Choose...</option>
                     {statusdata.length > 0 ? (
                       statusdata.map((item) => (
@@ -431,7 +475,7 @@ function LaporanScreen() {
                   Close
                 </button>
                 <button type="submit" className="btn btn-primary">
-                  Save changes
+                  Edit Laporan
                 </button>
               </div>
             </form>
