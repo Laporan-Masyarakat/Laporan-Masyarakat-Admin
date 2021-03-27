@@ -13,6 +13,10 @@ function LaporanScreen() {
   const [tgllaporan, setTglLaporan] = useState('')
   const [lokasiKejadian, setLokasiKejadian] = useState('')
   const [status, setStatus] = useState('')
+  const [instansi, setInstansi] = useState('')
+  const [kategori, setKategori] = useState('')
+  const [datainstansi, setDataInstansi] = useState('')
+  const [datakategori, setDataKategori] = useState('')
   const [loading, setLoading] = useState(false)
 
   // get data to verification
@@ -30,6 +34,8 @@ function LaporanScreen() {
       setTglLaporan(result.data[0].tgl_pengaduan)
       setLokasiKejadian(result.data[0].lokasi_kejadian)
       setStatus(result.data[0].status[0].id)
+      setInstansi(result.data[0].instansi_tujuan)
+      setKategori(result.data[0].kategori_laporan)
     } catch (error) {
       console.log(error)
       alert(error)
@@ -47,6 +53,8 @@ function LaporanScreen() {
       rowItem['isi_laporan'] = laporan[index].isi_laporan
       rowItem['tgl_pengaduan'] = laporan[index].tgl_pengaduan
       rowItem['lokasi_kejadian'] = laporan[index].lokasi_kejadian
+      rowItem['instansi_tujuan'] = laporan[index].instansi_tujuan
+      rowItem['kategori_laporan'] = laporan[index].kategori_laporan
       rowItem['foto_laporan'] = (
         <img
           style={{ width: '200px', height: '150px', borderRadius: '5px' }}
@@ -165,16 +173,48 @@ function LaporanScreen() {
     }
   }
 
-  //   running the state
+  // fetch data instansi
+  const fetchInstansi = async () => {
+    try {
+      const data = await fetch(`${API_URL}api/getinstansi`, {
+        method: 'GET',
+      })
+      const result = await data.json()
+      setDataInstansi(result.result)
+    } catch (error) {
+      console.log(error)
+      alert(error)
+    }
+  }
+
+  // fetch data kategori
+  const fetchKategori = async () => {
+    try {
+      const data = await fetch(`${API_URL}api/getkategori`, {
+        method: 'GET',
+      })
+      const result = await data.json()
+      setDataKategori(result.result)
+    } catch (error) {
+      console.log(error)
+      alert(error)
+    }
+  }
+
+  // running the state
   useEffect(() => {
     fetchLaporan()
       .then(() => {
         setLoading(true)
       })
       .then(() => {
-        fetchStatus().then(() => {
-          setLoading(true)
-        })
+        fetchStatus()
+      })
+      .then(() => {
+        fetchInstansi()
+      })
+      .then(() => {
+        fetchKategori()
       })
   }, [])
 
@@ -205,6 +245,16 @@ function LaporanScreen() {
         {
           label: 'Lokasi Kejadian',
           field: 'lokasi_kejadian',
+          sort: 'asc',
+        },
+        {
+          label: 'Instansi Tujuan',
+          field: 'instansi_tujuan',
+          sort: 'asc',
+        },
+        {
+          label: 'Kategori Laporan',
+          field: 'kategori_laporan',
           sort: 'asc',
         },
         {
@@ -272,11 +322,11 @@ function LaporanScreen() {
                 <span aria-hidden="true">×</span>
               </button>
             </div>
-            <div className="modal-body">
-              <form>
+            <form>
+              <div className="modal-body">
                 <div className="form-group">
-                  <label htmlFor="exampleFormControlTextarea1">
-                    Judul Laporan
+                  <label>
+                    <b>Judul Laporan</b>
                   </label>
                   <input
                     className="form-control"
@@ -286,8 +336,8 @@ function LaporanScreen() {
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="exampleFormControlTextarea1">
-                    Isi Laporan
+                  <label>
+                    <b>Isi Laporan</b>
                   </label>
                   <input
                     className="form-control"
@@ -297,8 +347,8 @@ function LaporanScreen() {
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="exampleFormControlTextarea1">
-                    Tanggal Kejadian
+                  <label>
+                    <b>Tanggal Kejadian</b>
                   </label>
                   <input
                     type="date"
@@ -309,8 +359,8 @@ function LaporanScreen() {
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="exampleFormControlTextarea1">
-                    Lokasi Kejadian
+                  <label>
+                    <b>Lokasi Kejadian</b>
                   </label>
                   <input
                     className="form-control"
@@ -320,12 +370,10 @@ function LaporanScreen() {
                   />
                 </div>
                 <div class="form-group">
-                  <label for="exampleFormControlSelect1">Status</label>
-                  <select
-                    class="form-control"
-                    id="exampleFormControlSelect1"
-                    value={status}
-                  >
+                  <label>
+                    <b>Status</b>
+                  </label>
+                  <select class="form-control" value={status}>
                     <option selected>Choose...</option>
                     {statusdata.length > 0 ? (
                       statusdata.map((item) => (
@@ -336,20 +384,57 @@ function LaporanScreen() {
                     )}
                   </select>
                 </div>
-              </form>
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-dismiss="modal"
-              >
-                Close
-              </button>
-              <button type="button" className="btn btn-primary">
-                Save changes
-              </button>
-            </div>
+                <div className="form-group">
+                  <label>
+                    <b>Instansi Tujuan</b>
+                  </label>
+                  <select
+                    class="form-control"
+                    id="exampleFormControlSelect2"
+                    value={instansi}
+                    disabled
+                  >
+                    <option selected>Choose...</option>
+                    {datainstansi.length > 0 ? (
+                      datainstansi.map((item) => (
+                        <option value={item.data_instansi}>
+                          {item.data_instansi}
+                        </option>
+                      ))
+                    ) : (
+                      <option>No Option Here!</option>
+                    )}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>
+                    <b>Kategori Laporan</b>
+                  </label>
+                  <select class="form-control" value={kategori} disabled>
+                    <option selected>Choose...</option>
+                    {datakategori.length > 0 ? (
+                      datakategori.map((item) => (
+                        <option value={item.id}>{item.kategori_laporan}</option>
+                      ))
+                    ) : (
+                      <option>No Option Here!</option>
+                    )}
+                  </select>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  data-dismiss="modal"
+                >
+                  Close
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  Save changes
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
