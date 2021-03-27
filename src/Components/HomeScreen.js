@@ -39,6 +39,7 @@ function HomeScreen(props) {
       console.log(error)
     }
   }
+
   return (
     <>
       {/* Navbar Component */}
