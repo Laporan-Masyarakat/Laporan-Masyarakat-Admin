@@ -35,7 +35,7 @@ function LaporanScreen() {
       setIsiLaporan(result.data[0].isi_laporan)
       setTglLaporan(result.data[0].tgl_pengaduan)
       setLokasiKejadian(result.data[0].lokasi_kejadian)
-      setStatus(result.data[0].status[0].id)
+      setStatus(result.data[0].statuslaporan[0].id)
       setInstansi(result.data[0].instansi_tujuan)
       setKategori(result.data[0].kategori_laporan)
       setIdLaporan(result.data[0].id)
@@ -59,7 +59,7 @@ function LaporanScreen() {
       rowItem['lokasi_kejadian'] = laporan[index].lokasi_kejadian
       rowItem['instansi_tujuan'] = laporan[index].instansi_tujuan
       rowItem['kategori_laporan'] =
-        laporan[index].kategori_laporan[0].kategori_laporan
+        laporan[index].laporankategori[0].kategori_laporan
       rowItem['foto_laporan'] = (
         <img
           style={{ width: '200px', height: '150px', borderRadius: '5px' }}
@@ -67,12 +67,12 @@ function LaporanScreen() {
           alt="tidak ada gambar"
         />
       )
-      let status = laporan[index].status[0].status
+      let status = laporan[index].statuslaporan[0].status
       switch (status) {
         case 'Belum Diproses':
           rowItem['status'] = (
             <div class="badge badge-danger badge-pill">
-              {laporan[index].status[0].status}
+              {laporan[index].statuslaporan[0].status}
             </div>
           )
           break
@@ -80,7 +80,7 @@ function LaporanScreen() {
         case 'Diproses':
           rowItem['status'] = (
             <div class="badge badge-warning badge-pill">
-              {laporan[index].status[0].status}
+              {laporan[index].statuslaporan[0].status}
             </div>
           )
           break
@@ -88,7 +88,7 @@ function LaporanScreen() {
         case 'Selesai':
           rowItem['status'] = (
             <div class="badge badge-success badge-pill">
-              {laporan[index].status[0].status}
+              {laporan[index].statuslaporan[0].status}
             </div>
           )
           break
@@ -352,6 +352,38 @@ function LaporanScreen() {
     }
   }
 
+  const showFile = (blob) => {
+    const newBlob = new Blob([blob], { type: 'application/pdf' })
+
+    if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+      window.navigator.msSaveOrOpenBlob(newBlob)
+      return
+    }
+
+    const data = window.URL.createObjectURL(newBlob)
+    var link = document.createElement('a')
+    link.href = data
+    link.download = `datalaporan.pdf`
+    link.click()
+    setTimeout(function () {
+      window.URL.revokeObjectURL(data)
+    }, 100)
+  }
+
+  const generatePDF = async () => {
+    MySwal.fire({
+      title: 'Loading...',
+      didOpen: () => {
+        MySwal.showLoading()
+      },
+    })
+    const response = await fetch(`${API_URL}api/getpdf?pdf=true`)
+    const result = await response.blob()
+    console.log(result)
+    showFile(result)
+    MySwal.close()
+  }
+
   return (
     <>
       <header className="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
@@ -368,8 +400,37 @@ function LaporanScreen() {
       </header>
       {/* Main page content*/}
       <div className="container mt-n10">
-        <div className="card">
-          <div className="card-header">Table Laporan Masuk</div>
+        <div className="card card-header-actions">
+          <div className="card-header">
+            Table Laporan Masuk
+            <div class="dropdown no-caret">
+              <button
+                class="btn btn-transparent-dark btn-icon dropdown-toggle"
+                id="dropdownMenuButton"
+                type="button"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
+              >
+                <i className="fas fa-ellipsis-v text-gray-500" />
+              </button>
+              <div
+                class="dropdown-menu dropdown-menu-right animated--fade-in-up"
+                aria-labelledby="dropdownMenuButton"
+              >
+                <a
+                  class="dropdown-item"
+                  href="#!"
+                  onClick={() => generatePDF()}
+                >
+                  <div class="dropdown-item-icon">
+                    <i class="text-gray-500 fas fa-print"></i>
+                  </div>
+                  Print Pdf
+                </a>
+              </div>
+            </div>
+          </div>
           <div className="card-body">
             <MDBDataTable
               sortable={true}

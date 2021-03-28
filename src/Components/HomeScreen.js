@@ -5,7 +5,7 @@ import Swal from 'sweetalert2/src/sweetalert2.js'
 import withReactContent from 'sweetalert2-react-content'
 import LaporanScreen from '../Screens/LaporanScreen'
 import TanggapanScreen from '../Screens/TanggapanScreen'
-import KategoriScreen from '../Screens/KategoriScreen'
+import UsersScreen from '../Screens/UsersScreen'
 
 function HomeScreen(props) {
   const API_URL = `http://localhost:8000/`
@@ -44,6 +44,7 @@ function HomeScreen(props) {
 
   return (
     <>
+      {console.log(localStorage.getItem('role'))}
       {/* Navbar Component */}
       <nav
         className="topnav navbar navbar-expand shadow justify-content-between justify-content-sm-start navbar-light bg-white"
@@ -131,31 +132,6 @@ function HomeScreen(props) {
           <nav className="sidenav shadow-right sidenav-light">
             <div className="sidenav-menu">
               <div className="nav accordion" id="accordionSidenav">
-                {/* Sidenav Menu Heading (Account)*/}
-                {/* * * Note: * * Visible only on and above the sm breakpoint*/}
-                <div className="sidenav-menu-heading d-sm-none">Account</div>
-                {/* Sidenav Link (Alerts)*/}
-                {/* * * Note: * * Visible only on and above the sm breakpoint*/}
-                <a className="nav-link d-sm-none" href="#!">
-                  <div className="nav-link-icon">
-                    <i data-feather="bell" />
-                  </div>
-                  Alerts
-                  <span className="badge badge-warning-soft text-warning ml-auto">
-                    4 New!
-                  </span>
-                </a>
-                {/* Sidenav Link (Messages)*/}
-                {/* * * Note: * * Visible only on and above the sm breakpoint*/}
-                <a className="nav-link d-sm-none" href="#!">
-                  <div className="nav-link-icon">
-                    <i data-feather="mail" />
-                  </div>
-                  Messages
-                  <span className="badge badge-success-soft text-success ml-auto">
-                    2 New!
-                  </span>
-                </a>
                 {/* Sidenav Menu Heading (Core)*/}
                 <div className="sidenav-menu-heading">Core</div>
                 {/* Sidenav Accordion (Dashboard)*/}
@@ -196,76 +172,45 @@ function HomeScreen(props) {
                     <a className="nav-link" href="/laporanmasyarakat">
                       Laporan Masuk
                     </a>
-                    <a className="nav-link" href="/kategorilaporan">
-                      Kategori Laporan
-                    </a>
                     <a className="nav-link" href="/tanggapanlaporan">
                       Tanggapan Laporan
                     </a>
                   </nav>
                 </div>
-                {/* Sidenav Accordion (Data User)*/}
-                <a
-                  className="nav-link collapsed"
-                  href="#"
-                  data-toggle="collapse"
-                  data-target="#collapseFlows"
-                  aria-expanded="false"
-                  aria-controls="collapseFlows"
-                >
-                  <div className="nav-link-icon">
-                    <i data-feather="users" />
-                  </div>
-                  Data User
-                  <div className="sidenav-collapse-arrow">
-                    <i className="fas fa-angle-down" />
-                  </div>
-                </a>
-                <div
-                  className="collapse"
-                  id="collapseFlows"
-                  data-parent="#accordionSidenav"
-                >
-                  <nav className="sidenav-menu-nested nav">
-                    <a className="nav-link" href="multi-tenant-select.html">
+                {localStorage.getItem('role') == 1 ? (
+                  <>
+                    {/* Sidenav Accordion (Data User)*/}
+                    <a
+                      className="nav-link collapsed"
+                      href="#"
+                      data-toggle="collapse"
+                      data-target="#collapseFlows"
+                      aria-expanded="false"
+                      aria-controls="collapseFlows"
+                    >
+                      <div className="nav-link-icon">
+                        <i data-feather="users" />
+                      </div>
                       Data User
+                      <div className="sidenav-collapse-arrow">
+                        <i className="fas fa-angle-down" />
+                      </div>
                     </a>
-                    <a className="nav-link" href="wizard.html">
-                      Data Admin & Petugas
-                    </a>
-                  </nav>
-                </div>
-                {/* Sidenav Accordion (Cetak Laporan)*/}
-                <a
-                  className="nav-link collapsed"
-                  href="#"
-                  data-toggle="collapse"
-                  data-target="#collapsePrint"
-                  aria-expanded="false"
-                  aria-controls="collapsePrint"
-                >
-                  <div className="nav-link-icon">
-                    <i data-feather="printer" />
-                  </div>
-                  Cetak Laporan
-                  <div className="sidenav-collapse-arrow">
-                    <i className="fas fa-angle-down" />
-                  </div>
-                </a>
-                <div
-                  className="collapse"
-                  id="collapsePrint"
-                  data-parent="#accordionSidenav"
-                >
-                  <nav className="sidenav-menu-nested nav">
-                    <a className="nav-link" href="multi-tenant-select.html">
-                      Cetak Data Pdf
-                    </a>
-                    <a className="nav-link" href="wizard.html">
-                      Cetak Data Excel
-                    </a>
-                  </nav>
-                </div>
+                    <div
+                      className="collapse"
+                      id="collapseFlows"
+                      data-parent="#accordionSidenav"
+                    >
+                      <nav className="sidenav-menu-nested nav">
+                        <a className="nav-link" href="/user">
+                          User
+                        </a>
+                      </nav>
+                    </div>
+                  </>
+                ) : (
+                  <></>
+                )}
               </div>
             </div>
             {/* Sidenav Footer*/}
@@ -297,9 +242,9 @@ function HomeScreen(props) {
               <TanggapanScreen />
             </Route>
 
-            {/* Kategori Screen */}
-            <Route path="/kategorilaporan">
-              <KategoriScreen />
+            {/* User Screen */}
+            <Route path="/user">
+              <UsersScreen />
             </Route>
           </main>
 

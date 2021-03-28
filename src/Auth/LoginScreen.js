@@ -131,13 +131,6 @@ function LoginScreen(props) {
                     </div>
                   </form>
                 </div>
-                <div className="card-footer text-center">
-                  <div className="small">
-                    <a href="auth-register-basic.html">
-                      Need an account? Sign up!
-                    </a>
-                  </div>
-                </div>
               </div>
             </div>
           </div>

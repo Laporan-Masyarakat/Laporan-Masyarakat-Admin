@@ -37,8 +37,6 @@ function TanggapanScreen() {
               <a
                 className="dropdown-item"
                 href="#!"
-                data-toggle="modal"
-                data-target="#deleteModal"
                 id={tanggapan[index].id}
                 onClick={(event) => deleteTanggapan(event)}
               >
@@ -56,7 +54,7 @@ function TanggapanScreen() {
     setTableTanggapan(rowsData)
   }
 
-  //   fetch laporan data
+  //   fetch tanggapan data
   const fetchTanggapan = async () => {
     try {
       const data = await fetch(`${API_URL}api/gettanggapan`, {
