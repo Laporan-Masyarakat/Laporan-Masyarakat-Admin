@@ -1,9 +1,10 @@
 import React from 'react'
-import { BrowserRouter as Router, Route } from 'react-router-dom'
+import { Route } from 'react-router-dom'
 import DashboardScreen from '../Screens/DashboardScreen'
 import Swal from 'sweetalert2/src/sweetalert2.js'
 import withReactContent from 'sweetalert2-react-content'
 import LaporanScreen from '../Screens/LaporanScreen'
+import TanggapanScreen from '../Screens/TanggapanScreen'
 
 function HomeScreen(props) {
   const API_URL = `http://localhost:8000/`
@@ -197,7 +198,7 @@ function HomeScreen(props) {
                     <a className="nav-link" href="/kategorilaporan">
                       Kategori Laporan
                     </a>
-                    <a className="nav-link" href="/kategorilaporan">
+                    <a className="nav-link" href="/tanggapanlaporan">
                       Tanggapan Laporan
                     </a>
                   </nav>
@@ -288,6 +289,11 @@ function HomeScreen(props) {
             {/* Laporan Screen */}
             <Route path="/laporanmasyarakat">
               <LaporanScreen />
+            </Route>
+
+            {/* Tanggapan Screen */}
+            <Route path="/tanggapanlaporan">
+              <TanggapanScreen />
             </Route>
           </main>
 

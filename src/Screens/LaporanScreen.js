@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { MDBDataTable } from 'mdbreact'
 import MySwal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
-import $ from 'jquery'
 
 function LaporanScreen() {
   const API_URL = `http://localhost:8000/`
@@ -20,6 +19,7 @@ function LaporanScreen() {
   const [datakategori, setDataKategori] = useState('')
   const [loading, setLoading] = useState(false)
   const [idlaporan, setIdLaporan] = useState(1)
+  const [id, setId] = useState(1)
 
   // get data to verification
   const getIdLaporan = async (e) => {
@@ -39,6 +39,7 @@ function LaporanScreen() {
       setInstansi(result.data[0].instansi_tujuan)
       setKategori(result.data[0].kategori_laporan)
       setIdLaporan(result.data[0].id)
+      setId(result.data[0].id_user)
     } catch (error) {
       console.log(error)
       alert(error)
@@ -128,7 +129,14 @@ function LaporanScreen() {
                 </div>
                 Verifikasi Laporan
               </a>
-              <a className="dropdown-item" href="#!">
+              <a
+                className="dropdown-item"
+                href="#!"
+                data-toggle="modal"
+                data-target="#tanggapanModal"
+                id={laporan[index].id}
+                onClick={(event) => getIdLaporan(event)}
+              >
                 <div className="dropdown-item-icon">
                   <i className="far fa-edit text-gray-500"></i>
                 </div>
@@ -316,6 +324,40 @@ function LaporanScreen() {
     }
   }
 
+  const submitTanggapan = async (e) => {
+    e.preventDefault()
+    const formData = new FormData(e.target)
+
+    try {
+      const data = await fetch(`${API_URL}api/createtanggapan`, {
+        method: 'POST',
+        body: formData,
+      })
+      const result = await data.json()
+      if (result.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil Mengirim Tanggapan',
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+          },
+        }).then(() => {
+          fetchLaporan()
+          document.getElementById('tanggapanForm').reset()
+          window.$('#tanggapanModal').modal('hide')
+        })
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   return (
     <>
       <header className="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
@@ -476,6 +518,64 @@ function LaporanScreen() {
                 </button>
                 <button type="submit" className="btn btn-primary">
                   Edit Laporan
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      {/* tanggapan laporan */}
+      <div className="modal fade" tabIndex={-1} id="tanggapanModal">
+        <div className="modal-dialog modal-lg">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Tanggapi Laporan</h5>
+              <button
+                type="button"
+                className="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+            <form onSubmit={(e) => submitTanggapan(e)} id="tanggapanForm">
+              <div className="modal-body">
+                <input
+                  className="form-control"
+                  value={id}
+                  type="hidden"
+                  name="id_user"
+                />
+                <input
+                  className="form-control"
+                  value={idlaporan}
+                  name="id_pengaduan"
+                  type="hidden"
+                />
+                <div className="form-group">
+                  <label>
+                    <b>Isi Tanggapan</b>
+                  </label>
+                  <textarea
+                    className="form-control"
+                    placeholder="Masukkan Isi Tanggapan"
+                    name="isi_tanggapan"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  data-dismiss="modal"
+                >
+                  Close
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  Simpan Tanggapan
                 </button>
               </div>
             </form>
