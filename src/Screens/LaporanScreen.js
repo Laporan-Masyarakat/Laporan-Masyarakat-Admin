@@ -142,12 +142,6 @@ function LaporanScreen() {
                 </div>
                 Berikan Tanggapan
               </a>
-              <a className="dropdown-item" href="#!">
-                <div className="dropdown-item-icon">
-                  <i className="fas fa-trash-alt text-gray-500"></i>
-                </div>
-                Hapus Laporan
-              </a>
             </div>
           </div>
         </>

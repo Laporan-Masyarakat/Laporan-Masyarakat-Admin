@@ -34,7 +34,14 @@ function TanggapanScreen() {
               className="dropdown-menu dropdown-menu-right animated--fade-in-up"
               aria-labelledby="dropdownMenuButton"
             >
-              <a className="dropdown-item" href="#!">
+              <a
+                className="dropdown-item"
+                href="#!"
+                data-toggle="modal"
+                data-target="#deleteModal"
+                id={tanggapan[index].id}
+                onClick={(event) => deleteTanggapan(event)}
+              >
                 <div className="dropdown-item-icon">
                   <i className="fas fa-trash-alt text-gray-500"></i>
                 </div>
@@ -93,6 +100,50 @@ function TanggapanScreen() {
         },
       ],
       rows: data,
+    }
+  }
+
+  const deleteTanggapan = async (e) => {
+    const id = e.target.id
+    try {
+      Swal.fire({
+        title: 'Apakah Kamu Yakin Ingin Menghapus Tanggapan Ini?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire('Deleted!', 'Tanggapan Berhasil Dihapus.', 'success')
+            .then(async () => {
+              try {
+                const tanggapandelete = await fetch(
+                  `${API_URL}api/deletetanggapan/${id}`,
+                  {
+                    method: 'DELETE',
+                  },
+                )
+                await tanggapandelete
+              } catch (error) {
+                console.log(error)
+              }
+            })
+            .then(function () {
+              fetchTanggapan()
+              Swal.fire({
+                title: 'Loading...',
+                timer: 1000,
+                didOpen: () => {
+                  Swal.showLoading()
+                },
+              })
+            })
+        }
+      })
+    } catch (error) {
+      console.log(error)
+      alert(error)
     }
   }
 

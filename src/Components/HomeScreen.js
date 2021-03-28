@@ -5,6 +5,7 @@ import Swal from 'sweetalert2/src/sweetalert2.js'
 import withReactContent from 'sweetalert2-react-content'
 import LaporanScreen from '../Screens/LaporanScreen'
 import TanggapanScreen from '../Screens/TanggapanScreen'
+import KategoriScreen from '../Screens/KategoriScreen'
 
 function HomeScreen(props) {
   const API_URL = `http://localhost:8000/`
@@ -294,6 +295,11 @@ function HomeScreen(props) {
             {/* Tanggapan Screen */}
             <Route path="/tanggapanlaporan">
               <TanggapanScreen />
+            </Route>
+
+            {/* Kategori Screen */}
+            <Route path="/kategorilaporan">
+              <KategoriScreen />
             </Route>
           </main>
 
